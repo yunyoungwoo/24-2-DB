@@ -21,7 +21,8 @@ class DatabaseHelper {
     if (!exists) {
       // assets에서 데이터베이스 파일 복사
       ByteData data = await rootBundle.load('assets/BaseballDiary.db');
-      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       await File(path).writeAsBytes(bytes);
       print('Database copied to $path');
     }
@@ -55,11 +56,11 @@ class DatabaseHelper {
 
   Future<void> _copyDatabaseFromAssets(String path) async {
     ByteData data = await rootBundle.load('assets/BaseballDiary.db');
-    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    List<int> bytes =
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await File(path).writeAsBytes(bytes);
     print('Database copied from assets to $path');
   }
-
 
   /// 팀 정보 가져오기
   Future<List<Map<String, dynamic>>> fetchTeams() async {
@@ -68,7 +69,7 @@ class DatabaseHelper {
 
   /// 유저 팀 색상 가져오기
   Future<List<Map<String, dynamic>>> fetchUserTeamColor(int userId) async {
-    final String query = '''
+    const String query = '''
       SELECT Teams.teamName, Teams.color 
       FROM Users
       JOIN Teams ON Users.teamID = Teams.teamID
