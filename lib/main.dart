@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false, // 디버그 배너 제거
       theme: ThemeData(
-        fontFamily: 'Pretendard', // pubspec.yaml에서 설정한 폰트 이름
+        fontFamily: 'Pretendard', // pubspec.yaml에서 설정한 폰트
         primarySwatch: Colors.blue, // 기본 색상 설정
       ),
       home: GameDiaryScreen(), // 초기 화면 설정
