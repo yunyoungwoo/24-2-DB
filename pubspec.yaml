@@ -64,7 +64,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/BaseballDiary.db
+   # - assets/BaseballDiary.db
+    - assets/database/baseball.sqlite
 
   # To add assets to your application, add an assets section, like this:
   # assets:
