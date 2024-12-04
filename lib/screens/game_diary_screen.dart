@@ -142,6 +142,12 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
         'createdAt': createdAt,
       });
 
+      print('--- Photo Table ---');
+      final photos = await DatabaseHelper.instance.fetchPhotos(); // Fixed the method call
+      for (var photo in photos) {
+        print(photo);
+      }
+
       _showSnackBar('경기 일지가 성공적으로 저장되었습니다!', isSuccess: true);
       Navigator.pop(context, true);
     } catch (e) {

@@ -152,6 +152,10 @@ class DatabaseHelper {
     }
     return null;
   }
+  Future<List<Map<String, dynamic>>> fetchPhotos() async {
+    final db = await database;
+    return await db.query('Photos'); // Fetch all rows from Photos table
+  }
 
   /// 특정 사진 경로 가져오기
   Future<String?> fetchPhotoPathById(int photoId) async {
