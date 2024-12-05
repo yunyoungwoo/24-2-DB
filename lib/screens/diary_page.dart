@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'diary_detail_page.dart'; // DiaryDetailPage 가져오기
 import '../database/database_helper.dart';
 import 'game_diary_screen.dart'; // GameDiaryScreen 가져오기
+import '../styles/text_styles.dart';
+import '../styles/app_colors.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -82,7 +84,7 @@ class DiaryPageState extends State<DiaryPage> {
     } else if (result == "패배") {
       return "패";
     }
-    return ""; // 예상치 못한 값일 경우 빈 문자열 반환
+    return ""; // 예상치 못한 값일 경우 빈 문자열
   }
 
   Color _getOvalColor(String result) {
@@ -93,282 +95,245 @@ class DiaryPageState extends State<DiaryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0, bottom: 16.0),
-                    child: Text(
-                      "오늘의 야구 기록을\n남겨보세요!",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
+      body: SafeArea(
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 24.0,
+                        bottom: 16.0,
+                      ),
+                      child: Text(
+                        "오늘의 야구 기록을\n남겨보세요!",
+                        style: AppTextStyle.h1,
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      // GameDiaryScreen으로 이동
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const GameDiaryScreen(), // GameDiaryScreen 연결
-                        ),
-                      );
+                    GestureDetector(
+                      onTap: () async {
+                        // GameDiaryScreen으로 이동
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const GameDiaryScreen(), // GameDiaryScreen 연결
+                          ),
+                        );
 
-                      // 돌아온 후 새로고침
-                      if (result == true) {
-                        _loadDiaries();
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 24,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Column(
-                        children: [
-                          Icon(
-                            Icons.add,
-                            size: 32,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "기록 남기기",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                        // 돌아온 후 새로고침
+                        if (result == true) {
+                          _loadDiaries();
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.gray2,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 24,
+                              color: AppColors.gray1,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              "${DateFormat('M월 d일').format(DateTime.now())} 기록 남기기",
+                              style: AppTextStyle.body3,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  diaries.isEmpty
-                      ? Expanded(
-                          child: Center(
-                            child: Text(
-                              "작성된 일기가 없습니다",
-                              style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontSize: 16,
+                    const SizedBox(height: 16),
+                    diaries.isEmpty
+                        ? Expanded(
+                            child: Center(
+                              child: Text(
+                                "작성된 일기가 없습니다",
+                                style: AppTextStyle.body1Medium,
                               ),
                             ),
-                          ),
-                        )
-                      : Expanded(
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            itemCount: diaries.length,
-                            itemBuilder: (context, index) {
-                              final diary = diaries[index];
-                              final scores = diary['score'].split('-');
-                              final diaryId = diary['diaryID']; // diaryID 추출
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemCount: diaries.length,
+                              itemBuilder: (context, index) {
+                                final diary = diaries[index];
+                                final scores = diary['score'].split('-');
+                                final diaryId = diary['diaryID']; // diaryID 추출
 
-                              return GestureDetector(
-                                onTap: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DiaryDetailPage(diaryId: diaryId),
-                                    ),
-                                  );
-
-                                  if (result == true) {
-                                    _loadDiaries();
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 16.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: Colors.grey.shade300,
+                                return GestureDetector(
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DiaryDetailPage(diaryId: diaryId),
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        children: [
-                                          // 직관 및 승무패
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                              horizontal: 8,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getOvalColor(
-                                                  diary['result']),
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: Text(
-                                              "${diary['watchingType']} ${_shortenResult(diary['result'])}",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      _parseTeamName(
-                                                          diary['homeTeam']),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  // 홈팀 스코어
-                                                  Text(
-                                                    scores[0], // 홈팀 점수
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: diary['result'] ==
-                                                              "무승부"
-                                                          ? Colors
-                                                              .grey // 무승부일 경우 회색
-                                                          : (int.parse(scores[
-                                                                      0]) >
-                                                                  int.parse(
-                                                                      scores[1])
-                                                              ? Colors.black
-                                                              : Colors
-                                                                  .grey), // 승리/패배
-                                                    ),
-                                                  ),
-                                                  const Text(
-                                                    " : ", // 구분자
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          Colors.grey, // 항상 회색
-                                                    ),
-                                                  ),
-                                                  // 원정팀 스코어
-                                                  Text(
-                                                    scores[1], // 원정팀 점수
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: diary['result'] ==
-                                                              "무승부"
-                                                          ? Colors
-                                                              .grey // 무승부일 경우 회색
-                                                          : (int.parse(scores[
-                                                                      1]) >
-                                                                  int.parse(
-                                                                      scores[0])
-                                                              ? Colors.black
-                                                              : Colors
-                                                                  .grey), // 승리/패배
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Expanded(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      _parseTeamName(
-                                                          diary['awayTeam']),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                    );
 
-                                          const SizedBox(height: 8),
-                                          // 날짜
-                                          Text(
-                                            _formatDate(diary['gameDate']),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.black,
+                                    if (result == true) {
+                                      _loadDiaries();
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 16.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                          color: AppColors.gray2,
+                                          width: 2.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 20.0,
+                                          horizontal: 16.0,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            // 직관 및 승무패 박스
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 4.0,
+                                                horizontal: 16.0,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: _getOvalColor(
+                                                    diary['result']),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                              child: Text(
+                                                "${diary['watchingType']} ${_shortenResult(diary['result'])}",
+                                                style: AppTextStyle
+                                                    .body2SemiBold
+                                                    .copyWith(
+                                                        color: Colors.white),
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        _parseTeamName(
+                                                            diary['homeTeam']),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: AppTextStyle.h2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    // 홈 스코어
+                                                    Text(
+                                                      scores[0], // 홈팀 점수
+                                                      style: AppTextStyle.score
+                                                          .copyWith(
+                                                        color: diary[
+                                                                    'result'] ==
+                                                                "무승부"
+                                                            ? Colors.grey
+                                                            : (int.parse(scores[
+                                                                        0]) >
+                                                                    int.parse(
+                                                                        scores[
+                                                                            1])
+                                                                ? AppColors.text
+                                                                : Colors.grey),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      " : ", // 구분자
+                                                      style: AppTextStyle.score
+                                                          .copyWith(
+                                                              color:
+                                                                  Colors.grey),
+                                                    ),
+                                                    // 원팀 스코어
+                                                    Text(
+                                                      scores[1], // 원정팀 점수
+                                                      style: AppTextStyle.score
+                                                          .copyWith(
+                                                        color: diary[
+                                                                    'result'] ==
+                                                                "무승부"
+                                                            ? Colors.grey
+                                                            : (int.parse(scores[
+                                                                        1]) >
+                                                                    int.parse(
+                                                                        scores[
+                                                                            0])
+                                                                ? AppColors.text
+                                                                : Colors.grey),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        _parseTeamName(
+                                                            diary['awayTeam']),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: AppTextStyle.h2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+
+                                            const SizedBox(height: 8),
+                                            // 날짜
+                                            Text(
+                                              _formatDate(diary['gameDate']),
+                                              style: AppTextStyle.body2Medium,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                ],
+                  ],
+                ),
               ),
-            ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: teamColor, // 사용자 팀 색상 적용
-        unselectedItemColor: const Color(0xFF4A4A4A),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.note_add),
-            label: '기록',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '분석',
-          ),
-        ],
       ),
     );
   }
