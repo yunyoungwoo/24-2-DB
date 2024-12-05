@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../database/database_helper.dart';
 import 'package:intl/intl.dart';
+import '../styles/text_styles.dart';
+import '../styles/app_colors.dart';
 
 class GameDiaryScreen extends StatefulWidget {
   const GameDiaryScreen({super.key});
@@ -31,6 +33,7 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
   @override
   void initState() {
     super.initState();
+    selectedDate = DateTime.now();
     _loadData();
   }
 
@@ -180,25 +183,25 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
         width: double.infinity,
         height: 200,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(10),
+          color: AppColors.gray2,
         ),
         child: _image == null
-            ? const Center(
+            ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.add, size: 30, color: Colors.grey),
                     SizedBox(height: 8),
                     Text(
-                      '관람 사진',
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                      '사진을 추가해주세요',
+                      style: AppTextStyle.body3.copyWith(color: Colors.grey),
                     ),
                   ],
                 ),
               )
             : ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Image.file(
                   File(_image!.path),
                   fit: BoxFit.cover,
@@ -217,7 +220,10 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.gray1,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: GestureDetector(
@@ -251,11 +257,7 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                 selectedDate != null
                     ? DateFormat('yyyy-MM-dd').format(selectedDate!)
                     : '날짜 선택',
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyle.body1SemiBold,
               ),
               const SizedBox(width: 4),
               const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -267,14 +269,15 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
             onPressed: saveGameAndDiary,
             child: Text(
               '완료',
-              style: TextStyle(
-                  color: userSelectedTeamColor, fontWeight: FontWeight.bold),
+              style: AppTextStyle.body1SemiBold.copyWith(
+                color: userSelectedTeamColor,
+              ),
             ),
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,14 +289,16 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: selectedHomeTeam,
-                        hint: const Center(child: Text('홈팀')),
+                        hint: Center(
+                            child: Text('홈팀', style: AppTextStyle.body1Medium)),
                         isExpanded: true,
                         dropdownColor: Colors.white,
                         items: teams.map<DropdownMenuItem<int>>((team) {
                           return DropdownMenuItem<int>(
                             value: team['teamID'],
                             child: Center(
-                              child: Text(team['teamName']),
+                              child: Text(team['teamName'],
+                                  style: AppTextStyle.body1Medium),
                             ),
                           );
                         }).toList(),
@@ -310,14 +315,19 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: selectedAwayTeam,
-                        hint: const Center(child: Text('원정팀')),
+                        hint: Center(
+                            child:
+                                Text('원정팀', style: AppTextStyle.body1SemiBold)),
                         isExpanded: true,
                         dropdownColor: Colors.white,
                         items: teams.map<DropdownMenuItem<int>>((team) {
                           return DropdownMenuItem<int>(
                             value: team['teamID'],
                             child: Center(
-                              child: Text(team['teamName']),
+                              child: Text(
+                                team['teamName'],
+                                style: AppTextStyle.body1SemiBold,
+                              ),
                             ),
                           );
                         }).toList(),
@@ -331,7 +341,7 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -341,19 +351,16 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: AppColors.gray2,
                         hintText: '...',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.all(16),
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyle.body1Medium,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -363,25 +370,23 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: AppColors.gray2,
                         hintText: '...',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.all(16),
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyle.body1Medium,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              const Text('관람 방식'),
+              Text('관람 방식', style: AppTextStyle.body1SemiBold),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -394,11 +399,12 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                         foregroundColor:
                             viewingMode == '직관' ? Colors.white : Colors.black,
                         elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12), // 라운드 처리
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('직관'),
+                      child: Text('직관', style: AppTextStyle.body1Medium),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -412,48 +418,58 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                         foregroundColor:
                             viewingMode == '집관' ? Colors.white : Colors.black,
                         elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12), // 라운드 처리
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('집관'),
+                      child: Text('집관', style: AppTextStyle.body1Medium),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              const Text('내 마음 속 MVP'),
+              Text('내 마음 속 MVP', style: AppTextStyle.body1SemiBold),
+              const SizedBox(height: 8),
               TextField(
                 controller: mvpController,
+                style: AppTextStyle.body1Medium,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade100,
+                  fillColor: AppColors.gray2,
                   hintText: '선수 이름을 적어주세요',
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  hintStyle:
+                      AppTextStyle.body2Medium.copyWith(color: AppColors.gray1),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.all(16),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('경기 한줄평'),
+              Text('경기 한줄평', style: AppTextStyle.body1SemiBold),
+              const SizedBox(height: 8),
               TextField(
                 controller: reviewController,
+                style: AppTextStyle.body1Medium,
                 maxLines: 4,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade100,
+                  fillColor: AppColors.gray2,
                   hintText: '한줄평을 적어주세요',
-                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  hintStyle:
+                      AppTextStyle.body2Medium.copyWith(color: AppColors.gray1),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.all(16),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('관람 사진'),
+              Text('관람 사진', style: AppTextStyle.body1SemiBold),
+              const SizedBox(height: 8),
               buildPhotoArea(),
             ],
           ),

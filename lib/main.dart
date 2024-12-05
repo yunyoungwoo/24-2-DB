@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'screens/select_team_screen.dart';
-import 'screens/diary_page.dart';
+import 'screens/main_tab_screen.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // MyApp 클래스 생성자에 const 추가
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'esamanru', // 앱 전역 폰트로 설정
+        fontFamily: 'esamanru',
       ),
-      home: const SplashScreen(),
+      initialRoute: '/',
       routes: {
-        '/SelectTeam': (context) => const SelectTeamScreen(), // 팀 선택 화면
-        '/DiaryPage': (context) => const DiaryPage(), // 여기에 경로 추가
+        '/': (context) => const SplashScreen(),
+        '/select_team': (context) => const SelectTeamScreen(),
+        '/main': (context) => const MainTabScreen(),
       },
     );
   }
