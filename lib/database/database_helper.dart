@@ -23,6 +23,12 @@ class DatabaseHelper {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'baseball.sqlite');
 
+    // 기존 DB 삭제 후 assets에서 새로 복사, db 삭제 기능이 필요없으면 제거
+    if (await File(path).exists()) {
+      print('Existing database found. Deleting...');
+      await File(path).delete(); // 기존 DB 삭제
+    }
+
     // 데이터베이스 파일이 없으면 assets에서 복사
     if (!await File(path).exists()) {
       await _copyDatabaseFromAssets(path);
@@ -40,7 +46,7 @@ class DatabaseHelper {
   }
 
   /// 데이터베이스 리셋 (삭제 없이 초기화만 수행)
-  Future<void> resetDatabase() async {
+  /*Future<void> resetDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'baseball.sqlite');
 
@@ -53,7 +59,7 @@ class DatabaseHelper {
     // 데이터베이스가 없을 경우 assets에서 복사
     await _copyDatabaseFromAssets(path);
     print('Database reset and copied to $path');
-  }
+  }*/
 
   /// Users 테이블에 특정 teamID를 저장하는 메서드
   Future<void> saveTeamToUser(int teamID) async {
@@ -152,6 +158,7 @@ class DatabaseHelper {
     }
     return null;
   }
+
   Future<List<Map<String, dynamic>>> fetchPhotos() async {
     final db = await database;
     return await db.query('Photos'); // Fetch all rows from Photos table

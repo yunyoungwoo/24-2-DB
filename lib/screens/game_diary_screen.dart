@@ -34,7 +34,6 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
     _loadData();
   }
 
-  /// 팀 데이터 및 사용자 팀 색상 로드
   Future<void> _loadData() async {
     try {
       final teamResults = await DatabaseHelper.instance.fetchTeams();
@@ -64,44 +63,38 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
     }
   }
 
-  /// HEX 컬러를 Flutter Color로 변환
   Color _hexToColor(String hex) {
     if (!hex.startsWith('#')) hex = '#$hex';
     return Color(int.parse('FF${hex.replaceFirst('#', '')}', radix: 16));
   }
 
-  /// 갤러리에서 이미지 선택
-  Future<void> getImageFromGallery() async {
-    try {
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _image = pickedFile;
-        });
-      }
-    } catch (e) {
-      _showSnackBar('이미지 선택에 실패했습니다: $e');
+  void _showSnackBar(String message, {bool isSuccess = false}) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isSuccess ? Colors.green : Colors.red,
+        ),
+      );
     }
   }
 
-  /// 일지 저장
   Future<void> saveGameAndDiary() async {
     if (viewingMode.isEmpty ||
         selectedHomeTeam == null ||
         selectedAwayTeam == null ||
         selectedDate == null) {
-      _showSnackBar('모든 필드를 입력해주세요.');
+      _showSnackBar('모든 필드를 입력해주세요');
       return;
     }
 
     if (userTeamID == null) {
-      _showSnackBar('사용자 팀 정보가 없습니다.');
+      _showSnackBar('사용자 팀 정보가 없습니다');
       return;
     }
 
-    // Check if user's team is involved in the game
     if (userTeamID != selectedHomeTeam && userTeamID != selectedAwayTeam) {
-      _showSnackBar('기록하려는 경기에 사용자 팀이 포함되어 있지 않습니다.');
+      _showSnackBar('기록하려는 경기에 사용자 팀이 포함되어 있지 않습니다');
       return;
     }
 
@@ -118,7 +111,8 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
 
     try {
       String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate!);
-      String createdAt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      String createdAt =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
       int gameID = await DatabaseHelper.instance.insertGame({
         'date': formattedDate,
@@ -129,7 +123,8 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
 
       int? photoID;
       if (_image != null) {
-        photoID = await DatabaseHelper.instance.insertPhoto({'photoPath': _image!.path});
+        photoID = await DatabaseHelper.instance
+            .insertPhoto({'photoPath': _image!.path});
       }
 
       await DatabaseHelper.instance.insertDiary({
@@ -142,21 +137,17 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
         'createdAt': createdAt,
       });
 
-      print('--- Photo Table ---');
-      final photos = await DatabaseHelper.instance.fetchPhotos(); // Fixed the method call
-      for (var photo in photos) {
-        print(photo);
-      }
+      _showSnackBar('경기 일지가 성공적으로 저장되었습니다', isSuccess: true);
 
-      _showSnackBar('경기 일지가 성공적으로 저장되었습니다!', isSuccess: true);
-      Navigator.pop(context, true);
+      // `mounted`를 확인하여 위젯이 여전히 활성 상태인지 확인
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
     } catch (e) {
       _showSnackBar('저장 중 오류가 발생했습니다: $e');
     }
   }
 
-
-  /// 경기 결과 계산
   String _calculateResult(String homeScore, String awayScore) {
     int home = int.parse(homeScore);
     int away = int.parse(awayScore);
@@ -170,50 +161,49 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
     }
   }
 
-  /// 스낵바 메시지 표시
-  void _showSnackBar(String message, {bool isSuccess = false}) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: isSuccess ? Colors.green : Colors.red,
-        ),
-      );
-    }
-  }
-
-  /// 사진 업로드 영역
   Widget buildPhotoArea() {
     return GestureDetector(
-      onTap: getImageFromGallery,
+      onTap: () async {
+        try {
+          final pickedFile =
+              await picker.pickImage(source: ImageSource.gallery);
+          if (pickedFile != null) {
+            setState(() {
+              _image = pickedFile;
+            });
+          }
+        } catch (e) {
+          _showSnackBar('이미지 선택에 실패했습니다: $e');
+        }
+      },
       child: Container(
         width: double.infinity,
-        height: 150,
+        height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.shade200,
+          color: Colors.grey.shade100,
         ),
         child: _image == null
             ? const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add, size: 30, color: Colors.grey),
-              SizedBox(height: 8),
-              Text(
-                '사진을 추가해주세요',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
-          ),
-        )
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add, size: 30, color: Colors.grey),
+                    SizedBox(height: 8),
+                    Text(
+                      '관람 사진',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ],
+                ),
+              )
             : ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.file(
-            File(_image!.path),
-            fit: BoxFit.cover,
-          ),
-        ),
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(_image!.path),
+                  fit: BoxFit.cover,
+                ),
+              ),
       ),
     );
   }
@@ -223,16 +213,62 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Game Diary'),
-        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: GestureDetector(
+          onTap: () async {
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDate ?? DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+              builder: (BuildContext context, Widget? child) {
+                return Theme(
+                  data: ThemeData.light().copyWith(
+                    primaryColor: userSelectedTeamColor,
+                    colorScheme:
+                        ColorScheme.light(primary: userSelectedTeamColor),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (pickedDate != null) {
+              setState(() {
+                selectedDate = pickedDate;
+              });
+            }
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                selectedDate != null
+                    ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+                    : '날짜 선택',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_drop_down, color: Colors.black),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: saveGameAndDiary,
             child: Text(
               '완료',
-              style: TextStyle(color: userSelectedTeamColor, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: userSelectedTeamColor, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -243,114 +279,103 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                    builder: (BuildContext context, Widget? child) {
-                      return Theme(
-                        data: ThemeData.light().copyWith(
-                          primaryColor: userSelectedTeamColor, // Apply user's team color
-                          colorScheme: ColorScheme.light(primary: userSelectedTeamColor), // Adjust color scheme
-                          buttonTheme: ButtonThemeData(
-                            textTheme: ButtonTextTheme.primary,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      selectedDate = pickedDate;
-                    });
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    selectedDate != null
-                        ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-                        : '날짜 선택',
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: DropdownButton<int>(
-                      value: selectedHomeTeam,
-                      hint: const Text('홈 팀'),
-                      isExpanded: true,
-                      items: teams.map<DropdownMenuItem<int>>((team) {
-                        return DropdownMenuItem<int>(
-                          value: team['teamID'],
-                          child: Text(team['teamName']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedHomeTeam = value;
-                        });
-                      },
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: selectedHomeTeam,
+                        hint: const Center(child: Text('홈팀')),
+                        isExpanded: true,
+                        dropdownColor: Colors.white,
+                        items: teams.map<DropdownMenuItem<int>>((team) {
+                          return DropdownMenuItem<int>(
+                            value: team['teamID'],
+                            child: Center(
+                              child: Text(team['teamName']),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedHomeTeam = value;
+                          });
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text('vs'),
-                  const SizedBox(width: 8),
                   Expanded(
-                    child: DropdownButton<int>(
-                      value: selectedAwayTeam,
-                      hint: const Text('원정 팀'),
-                      isExpanded: true,
-                      items: teams.map<DropdownMenuItem<int>>((team) {
-                        return DropdownMenuItem<int>(
-                          value: team['teamID'],
-                          child: Text(team['teamName']),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedAwayTeam = value;
-                        });
-                      },
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: selectedAwayTeam,
+                        hint: const Center(child: Text('원정팀')),
+                        isExpanded: true,
+                        dropdownColor: Colors.white,
+                        items: teams.map<DropdownMenuItem<int>>((team) {
+                          return DropdownMenuItem<int>(
+                            value: team['teamID'],
+                            child: Center(
+                              child: Text(team['teamName']),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedAwayTeam = value;
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // 기존 내용 유지
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     child: TextField(
                       controller: homeScoreController,
-                      decoration: const InputDecoration(
-                        labelText: '홈 팀 점수',
-                        border: OutlineInputBorder(),
-                      ),
                       keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        hintText: '...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
+                      ),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: awayScoreController,
-                      decoration: const InputDecoration(
-                        labelText: '원정 팀 점수',
-                        border: OutlineInputBorder(),
-                      ),
                       keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        hintText: '...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
+                      ),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -366,9 +391,12 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                         backgroundColor: viewingMode == '직관'
                             ? userSelectedTeamColor
                             : Colors.grey.shade200,
-                        foregroundColor: viewingMode == '직관'
-                            ? Colors.white
-                            : Colors.black,
+                        foregroundColor:
+                            viewingMode == '직관' ? Colors.white : Colors.black,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // 라운드 처리
+                        ),
                       ),
                       child: const Text('직관'),
                     ),
@@ -381,9 +409,12 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                         backgroundColor: viewingMode == '집관'
                             ? userSelectedTeamColor
                             : Colors.grey.shade200,
-                        foregroundColor: viewingMode == '집관'
-                            ? Colors.white
-                            : Colors.black,
+                        foregroundColor:
+                            viewingMode == '집관' ? Colors.white : Colors.black,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // 라운드 처리
+                        ),
                       ),
                       child: const Text('집관'),
                     ),
@@ -391,26 +422,38 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              const Text('MVP 입력'),
+              const Text('내 마음 속 MVP'),
               TextField(
                 controller: mvpController,
-                decoration: const InputDecoration(
-                  hintText: '선수 이름',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  hintText: '선수 이름을 적어주세요',
+                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('한줄평'),
+              const Text('경기 한줄평'),
               TextField(
                 controller: reviewController,
-                maxLines: 2,
-                decoration: const InputDecoration(
-                  hintText: '경기에 대한 한줄평',
-                  border: OutlineInputBorder(),
+                maxLines: 4,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  hintText: '한줄평을 적어주세요',
+                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('사진 추가'),
+              const Text('관람 사진'),
               buildPhotoArea(),
             ],
           ),

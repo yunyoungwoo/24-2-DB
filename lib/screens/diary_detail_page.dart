@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
+import 'dart:io';
 
 class DiaryDetailPage extends StatefulWidget {
   final int diaryId; // 일기 ID를 전달받음
@@ -59,6 +60,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
               await DatabaseHelper.instance.fetchPhotoPathById(photoId);
           setState(() {
             photoPath = fetchedPhotoPath;
+            print(photoPath);
           });
         }
       }
@@ -284,7 +286,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                   Text(
                     gameDate,
                     style: const TextStyle(
-                      color: Colors.black54,
+                      color: Colors.black,
                       fontSize: 14,
                     ),
                   ),
@@ -302,7 +304,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: Colors.grey.shade100, // 약한 회색
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -321,7 +323,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: Colors.grey.shade100, // 약한 회색
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -330,19 +332,28 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
               ),
             ),
             const SizedBox(height: 16),
-            // 사진
+            // 관람 사진
             const Text(
               "관람 사진",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             photoPath != null
-                ? Image.network(photoPath!) // 사진 경로 표시
+                ? Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey.shade100, // 약한 회색
+                    ),
+                    child: Image.file(
+                      File(photoPath!), // 로컬 파일 경로를 사용하여 이미지 표시
+                      fit: BoxFit.cover, // 이미지 크기 조정
+                    ),
+                  )
                 : Container(
                     width: double.infinity,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: Colors.grey.shade100, // 약한 회색
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Center(
