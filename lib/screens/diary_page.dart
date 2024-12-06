@@ -55,6 +55,13 @@ class DiaryPageState extends State<DiaryPage> {
     try {
       final fetchedDiaries =
           await DatabaseHelper.instance.fetchDiaryWithGameInfo();
+      // 날짜순으로 정렬
+      fetchedDiaries.sort((a, b) {
+        final dateA = DateTime.parse(a['gameDate']);
+        final dateB = DateTime.parse(b['gameDate']);
+        return dateB.compareTo(dateA); // 내림차순 정렬 (최신 날짜가 위로)
+      });
+
       setState(() {
         diaries = fetchedDiaries;
         isLoading = false;
