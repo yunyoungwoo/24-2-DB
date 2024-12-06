@@ -9,21 +9,23 @@ class MainTabScreen extends StatefulWidget {
   const MainTabScreen({Key? key}) : super(key: key);
 
   @override
-  State<MainTabScreen> createState() => _MainTabScreenState();
+  State<MainTabScreen> createState() => MainTabScreenState();
 }
 
-class _MainTabScreenState extends State<MainTabScreen> {
+class MainTabScreenState extends State<MainTabScreen> {
   int _currentIndex = 0;
-  Color teamColor = Colors.grey; // 기본값
+  Color teamColor = Colors.grey;
+  final analysisScreenKey = GlobalKey<AnalysisScreenState>();
 
-  final List<Widget> _pages = [
-    const DiaryPage(),
-    const AnalysisScreen(),
-  ];
+  final List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
+    _pages.addAll([
+      const DiaryPage(),
+      AnalysisScreen(key: analysisScreenKey),
+    ]);
     _loadTeamColor();
   }
 
@@ -56,6 +58,10 @@ class _MainTabScreenState extends State<MainTabScreen> {
           setState(() {
             _currentIndex = index;
           });
+          // 분석 탭으로 이동할 때 데이터 새로고침
+          if (index == 1) {
+            analysisScreenKey.currentState?.loadAllData();
+          }
         },
         items: const [
           BottomNavigationBarItem(

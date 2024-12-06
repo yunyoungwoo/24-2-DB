@@ -251,4 +251,84 @@ class DatabaseHelper {
     final db = await database;
     return await db.delete('Games', where: 'gameID = ?', whereArgs: [gameId]);
   }
+
+  /// 관람 방식별 승률 계산 (무승부 제외, 소수점 생략)
+  Future<Map<String, int>> calculateWinRatesByViewType(int teamId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        d.watchingType,
+        COUNT(*) as total_games,
+        SUM(CASE WHEN d.result = '승리' THEN 1 ELSE 0 END) as wins,
+        SUM(CASE WHEN d.result = '무승부' THEN 1 ELSE 0 END) as draws
+      FROM Diary d
+      JOIN Games g ON d.gameID = g.gameID
+      WHERE (g.homeTeamID = ? OR g.awayTeamID = ?)
+      GROUP BY d.watchingType
+    ''', [teamId, teamId]);
+
+    Map<String, int> winRates = {'직관': 0, '집관': 0};
+
+    for (var row in result) {
+      final watchingType = row['watchingType'] as String;
+      final totalGames = row['total_games'] as int;
+      final wins = row['wins'] as int;
+      final draws = row['draws'] as int;
+      final gamesExcludingDraws = totalGames - draws;
+
+      if (gamesExcludingDraws > 0) {
+        final winRate = (wins / gamesExcludingDraws * 100).round();
+        winRates[watchingType] = winRate;
+      }
+    }
+
+    return winRates;
+  }
+
+  /// 팀의 전체 경기 기록 조회
+  Future<Map<String, int>> getTeamRecord(int teamId) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        COUNT(*) as total_games,
+        SUM(CASE WHEN d.result = '승리' THEN 1 ELSE 0 END) as wins,
+        SUM(CASE WHEN d.result = '패배' THEN 1 ELSE 0 END) as losses,
+        SUM(CASE WHEN d.result = '무승��' THEN 1 ELSE 0 END) as draws
+      FROM Diary d
+      JOIN Games g ON d.gameID = g.gameID
+      WHERE (g.homeTeamID = ? OR g.awayTeamID = ?)
+    ''', [teamId, teamId]);
+
+    if (result.isNotEmpty) {
+      return {
+        'total': result.first['total_games'] as int? ?? 0,
+        'wins': result.first['wins'] as int? ?? 0,
+        'losses': result.first['losses'] as int? ?? 0,
+        'draws': result.first['draws'] as int? ?? 0,
+      };
+    }
+    return {'total': 0, 'wins': 0, 'losses': 0, 'draws': 0};
+  }
+
+  /// MVP 언급 횟수 TOP N 조회
+  Future<List<Map<String, dynamic>>> getTopMVPs({int limit = 3}) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        MVP,
+        COUNT(*) as mention_count
+      FROM Diary
+      WHERE MVP IS NOT NULL AND MVP != ''
+      GROUP BY MVP
+      ORDER BY mention_count DESC
+      LIMIT ?
+    ''', [limit]);
+
+    return result.map((row) {
+      return {
+        'name': row['MVP'] as String,
+        'count': row['mention_count'] as int,
+      };
+    }).toList();
+  }
 }
