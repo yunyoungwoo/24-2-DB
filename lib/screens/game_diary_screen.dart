@@ -142,7 +142,6 @@ class GameDiaryScreenState extends State<GameDiaryScreen> {
 
       _showSnackBar('경기 일지가 성공적으로 저장되었습니다', isSuccess: true);
 
-      // `mounted`를 확인하여 위젯이 여전히 활성 상태인지 확인
       if (mounted) {
         Navigator.pop(context, true);
       }

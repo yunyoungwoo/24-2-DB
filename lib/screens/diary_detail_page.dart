@@ -357,7 +357,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                             ),
                             child: Text(
                               mvp,
-                              style: const TextStyle(fontSize: 16),
+                              style: AppTextStyle.body1Medium,
                             ),
                           ),
                         ],
@@ -384,7 +384,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                             ),
                             child: Text(
                               comment,
-                              style: const TextStyle(fontSize: 16),
+                              style: AppTextStyle.body1Medium,
                             ),
                           ),
                         ],
