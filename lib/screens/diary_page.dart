@@ -5,6 +5,7 @@ import '../database/database_helper.dart';
 import 'game_diary_screen.dart'; // GameDiaryScreen 가져오기
 import '../styles/text_styles.dart';
 import '../styles/app_colors.dart';
+import 'main_tab_screen.dart'; // import 추가
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -84,7 +85,7 @@ class DiaryPageState extends State<DiaryPage> {
     } else if (result == "패배") {
       return "패";
     }
-    return ""; // 예상치 못한 값일 경우 빈 문자열
+    return ""; // 예상치 못한 값일 경우 빈 자열
   }
 
   Color _getOvalColor(String result) {
@@ -129,6 +130,13 @@ class DiaryPageState extends State<DiaryPage> {
                         // 돌아온 후 새로고침
                         if (result == true) {
                           _loadDiaries();
+                          // 분석 화면 새로고침
+                          final mainTabState = context
+                              .findAncestorStateOfType<MainTabScreenState>();
+                          if (mainTabState != null) {
+                            mainTabState.analysisScreenKey.currentState
+                                ?.loadAllData();
+                          }
                         }
                       },
                       child: Container(
