@@ -85,16 +85,11 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Center(
-              child: Text(
-                "정말 삭제하시겠습니까?",
-                style: AppTextStyle.h3.copyWith(color: AppColors.text),
-              ),
-            ),
+          title: const Padding(
+            padding: EdgeInsets.only(top: 16.0), // 텍스트를 아래로 약간 내림
+            child: Center(child: Text("삭제 확인")),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.white, // 창 배경색 흰색으로 설정
           contentPadding: const EdgeInsets.symmetric(horizontal: 20),
           actionsPadding: const EdgeInsets.all(0),
           insetPadding:
@@ -102,10 +97,10 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          content: const SizedBox(height: 0),
+          content: const SizedBox(height: 0), // 추가 공간 제거
           actions: [
             SizedBox(
-              height: 80,
+              height: 80, // 전체 버튼 영역의 높이
               child: Row(
                 children: [
                   Expanded(
@@ -113,13 +108,9 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                       alignment: Alignment.bottomCenter,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(false);
+                          Navigator.of(context).pop(false); // 취소 선택
                         },
-                        child: Text(
-                          "취소",
-                          style: AppTextStyle.body1SemiBold
-                              .copyWith(color: AppColors.text),
-                        ),
+                        child: const Text("취소"),
                       ),
                     ),
                   ),
@@ -128,13 +119,9 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                       alignment: Alignment.bottomCenter,
                       child: TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(true);
+                          Navigator.of(context).pop(true); // 확인 선택
                         },
-                        child: Text(
-                          "확인",
-                          style: AppTextStyle.body1SemiBold
-                              .copyWith(color: AppColors.text),
-                        ),
+                        child: const Text("확인"),
                       ),
                     ),
                   ),
