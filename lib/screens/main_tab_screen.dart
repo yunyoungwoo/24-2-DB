@@ -48,9 +48,11 @@ class MainTabScreenState extends State<MainTabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _pages,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -58,7 +60,6 @@ class MainTabScreenState extends State<MainTabScreen> {
           setState(() {
             _currentIndex = index;
           });
-          // 분석 탭으로 이동할 때 데이터 새로고침
           if (index == 1) {
             analysisScreenKey.currentState?.loadAllData();
           }
@@ -73,13 +74,11 @@ class MainTabScreenState extends State<MainTabScreen> {
             label: '분석',
           ),
         ],
-        backgroundColor: Colors.white, // 배경색 흰색
-        selectedItemColor: teamColor, // 선택된 아이템 색상을 팀 컬러로
-        unselectedItemColor: AppColors.gray1, // gray1 색상
-        selectedLabelStyle:
-            AppTextStyle.body2Medium.copyWith(color: Colors.white),
-        unselectedLabelStyle:
-            AppTextStyle.body2Medium.copyWith(color: Colors.white),
+        backgroundColor: Colors.white,
+        selectedItemColor: teamColor,
+        unselectedItemColor: AppColors.gray1,
+        selectedLabelStyle: AppTextStyle.body2Medium,
+        unselectedLabelStyle: AppTextStyle.body2Medium,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
       ),
