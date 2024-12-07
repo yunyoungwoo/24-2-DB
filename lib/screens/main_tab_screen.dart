@@ -14,7 +14,7 @@ class MainTabScreen extends StatefulWidget {
 
 class MainTabScreenState extends State<MainTabScreen> {
   int _currentIndex = 0;
-  Color teamColor = Colors.grey;
+  Color teamColor = AppColors.text;
   final analysisScreenKey = GlobalKey<AnalysisScreenState>();
 
   final List<Widget> _pages = [];
@@ -48,40 +48,52 @@ class MainTabScreenState extends State<MainTabScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _pages,
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          // 분석 탭으로 이동할 때 데이터 새로고침
-          if (index == 1) {
-            analysisScreenKey.currentState?.loadAllData();
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.note_alt),
-            label: '기록',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '분석',
-          ),
-        ],
-        backgroundColor: Colors.white, // 배경색 흰색
-        selectedItemColor: teamColor, // 선택된 아이템 색상을 팀 컬러로
-        unselectedItemColor: AppColors.gray1, // gray1 색상
-        selectedLabelStyle:
-            AppTextStyle.body2Medium.copyWith(color: Colors.white),
-        unselectedLabelStyle:
-            AppTextStyle.body2Medium.copyWith(color: Colors.white),
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          elevation: 0,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            if (index == 1) {
+              analysisScreenKey.currentState?.loadAllData();
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.note_alt),
+              label: '기록',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart),
+              label: '분석',
+            ),
+          ],
+          backgroundColor: Colors.white,
+          selectedItemColor: teamColor,
+          unselectedItemColor: AppColors.gray1,
+          selectedLabelStyle: AppTextStyle.body2Medium,
+          unselectedLabelStyle: AppTextStyle.body2Medium,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }
