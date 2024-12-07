@@ -23,26 +23,21 @@ class DatabaseHelper {
     final directory = await getApplicationDocumentsDirectory();
     final path = join(directory.path, 'baseball.sqlite');
 
-    // 기존 DB 삭제 후 assets에서 새로 복사, db 삭제 기능이 필요없으면 제거
-    if (await File(path).exists()) {
-      print('Existing database found. Deleting...');
-      await File(path).delete(); // 기존 DB 삭제
-    }
-
     // 데이터베이스 파일이 없으면 assets에서 복사
     if (!await File(path).exists()) {
-      await _copyDatabaseFromAssets(path);
+      try {
+        // assets에서 데이터베이스 파일 복사
+        ByteData data =
+            await rootBundle.load('assets/database/baseball.sqlite');
+        List<int> bytes = data.buffer.asUint8List();
+        await File(path).writeAsBytes(bytes);
+        print('Database copied to $path');
+      } catch (e) {
+        print('Error copying database: $e');
+      }
     }
 
     return openDatabase(path);
-  }
-
-  /// 데이터베이스 파일을 assets에서 복사
-  Future<void> _copyDatabaseFromAssets(String path) async {
-    ByteData data = await rootBundle.load('assets/database/baseball.sqlite');
-    List<int> bytes = data.buffer.asUint8List();
-    await File(path).writeAsBytes(bytes);
-    print('Database copied to $path');
   }
 
   /// 데이터베이스 리셋 (삭제 없이 초기화만 수행)
@@ -293,7 +288,7 @@ class DatabaseHelper {
         COUNT(*) as total_games,
         SUM(CASE WHEN d.result = '승리' THEN 1 ELSE 0 END) as wins,
         SUM(CASE WHEN d.result = '패배' THEN 1 ELSE 0 END) as losses,
-        SUM(CASE WHEN d.result = '무승��' THEN 1 ELSE 0 END) as draws
+        SUM(CASE WHEN d.result = '무승부' THEN 1 ELSE 0 END) as draws
       FROM Diary d
       JOIN Games g ON d.gameID = g.gameID
       WHERE (g.homeTeamID = ? OR g.awayTeamID = ?)
