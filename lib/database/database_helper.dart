@@ -21,22 +21,30 @@ class DatabaseHelper {
   /// 데이터베이스 초기화
   Future<Database> _initializeDatabase() async {
     final directory = await getApplicationDocumentsDirectory();
-    final path = join(directory.path, 'baseball.sqlite');
+    final path = join(directory.path, 'original.sqlite');
+
+    // 기존 데이터베이스 파일이 있으면 삭제
+    //if (await File(path).exists()) {
+      //try {
+        //await File(path).delete();
+        //print('Existing database deleted at: $path');
+      //} catch (e) {
+        //print('Error deleting existing database: $e');
+      //}
+    //}
 
     // 데이터베이스 파일이 없으면 assets에서 복사
-    if (!await File(path).exists()) {
-      try {
-        // assets에서 데이터베이스 파일 복사
-        ByteData data =
-            await rootBundle.load('assets/database/baseball.sqlite');
-        List<int> bytes = data.buffer.asUint8List();
-        await File(path).writeAsBytes(bytes);
-        print('Database copied to $path');
-      } catch (e) {
-        print('Error copying database: $e');
-      }
+    try {
+      print('Copying database from assets...');
+      ByteData data = await rootBundle.load('assets/database/original.sqlite');
+      List<int> bytes = data.buffer.asUint8List();
+      await File(path).writeAsBytes(bytes);
+      print('Database copied successfully to $path');
+    } catch (e) {
+      print('Error copying database: $e');
     }
 
+    // 데이터베이스 열기
     return openDatabase(path);
   }
 

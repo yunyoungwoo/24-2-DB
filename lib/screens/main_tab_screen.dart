@@ -65,34 +65,45 @@ class MainTabScreenState extends State<MainTabScreen> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          elevation: 0,
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-            if (index == 1) {
-              analysisScreenKey.currentState?.loadAllData();
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.note_alt),
-              label: '기록',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 구분선 추가
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey, // 위쪽 구분선
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart),
-              label: '분석',
+            BottomNavigationBar(
+              elevation: 0,
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                if (index == 1) {
+                  analysisScreenKey.currentState?.loadAllData();
+                }
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.note_alt),
+                  label: '기록',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.bar_chart),
+                  label: '분석',
+                ),
+              ],
+              backgroundColor: Colors.white,
+              selectedItemColor: teamColor,
+              unselectedItemColor: AppColors.gray1,
+              selectedLabelStyle: AppTextStyle.body2Medium,
+              unselectedLabelStyle: AppTextStyle.body2Medium,
+              showUnselectedLabels: true,
+              type: BottomNavigationBarType.fixed,
             ),
           ],
-          backgroundColor: Colors.white,
-          selectedItemColor: teamColor,
-          unselectedItemColor: AppColors.gray1,
-          selectedLabelStyle: AppTextStyle.body2Medium,
-          unselectedLabelStyle: AppTextStyle.body2Medium,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
         ),
       ),
     );

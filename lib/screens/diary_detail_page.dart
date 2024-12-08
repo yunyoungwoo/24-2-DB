@@ -402,7 +402,7 @@ class DiaryDetailPageState extends State<DiaryDetailPage> {
                             style: AppTextStyle.body1SemiBold,
                           ),
                           const SizedBox(height: 8),
-                          photoPath != null
+                          photoPath != null && File(photoPath!).existsSync()
                               ? Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
